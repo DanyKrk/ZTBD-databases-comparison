@@ -1,0 +1,7 @@
+day.date(2006-01-02)
+opening.auto()
+highest.auto()
+lowest.auto()
+closing.auto()
+volume.auto()
+garbage.binary(hex)

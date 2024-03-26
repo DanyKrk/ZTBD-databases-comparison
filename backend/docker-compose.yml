@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    build:
+      context: .
+      dockerfile: docker/postgres.dockerfile
+  
+  mongo:
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    build:
+      context: .
+      dockerfile: docker/mongo.dockerfile
+
+  cassandra:
+    ports:
+      - "9042:9042"
+    build:
+      context: .
+      dockerfile: docker/cassandra.dockerfile
+      
