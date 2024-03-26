@@ -21,10 +21,4 @@ services:
       context: .
       dockerfile: docker/mongo.dockerfile
 
-  cassandra:
-    ports:
-      - "9042:9042"
-    build:
-      context: .
-      dockerfile: docker/cassandra.dockerfile
       

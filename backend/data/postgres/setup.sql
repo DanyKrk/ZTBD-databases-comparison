@@ -1,31 +1,18 @@
-CREATE TABLE if not exists indexes (
-    index_id serial primary key,
-    index_name text unique,
-    full_name text
+CREATE TABLE breeds (
+    breed_id SERIAL PRIMARY KEY,
+    breed_name VARCHAR(50),
+    lifespan INTEGER,
+    country_of_origin VARCHAR(50)
 );
 
-CREATE TABLE if not exists index_company_data (
-    index_data_id serial primary key,
-    index_id int,
-    day date,
-    closing decimal,
-    highest decimal,
-    lowest decimal,
-    opening decimal,
-    volume decimal,
-    garbage bytea,
-    FOREIGN KEY (index_id) REFERENCES indexes (index_id)
-);
-
-CREATE TABLE if not exists index_data (
-    index_data_id serial primary key,
-    index_id int,
-    day date,
-    closing decimal,
-    highest decimal,
-    lowest decimal,
-    opening decimal,
-    volume decimal,
-    garbage bytea,
-    FOREIGN KEY (index_id) REFERENCES indexes (index_id)
+CREATE TABLE if not exists dogs (
+    dog_id SERIAL PRIMARY KEY,
+    dog_name VARCHAR(50),
+    breed_id INTEGER,
+    color VARCHAR(50),
+    weight FLOAT,
+    birth_date DATE,
+    adopted_date DATE,
+    acquired_date DATE,
+    FOREIGN KEY (breed_id) REFERENCES breeds (breed_id)
 );
