@@ -24,198 +24,87 @@ router.get("/mongodb/status", async (req, res, next) => {
   const result = await db.command({
     serverStatus: 1,
   });
-  res.json({ message: "Jest jak jest", status: result });
+  res.json({ message: "Mongo status", status: result });
 });
 
-router.get("/mongodb/company", async (req, res, next) => {
-  const collection = await db.collection("indexes");
+router.get("/dogs", async (req, res, next) => {
+  const collection = await db.collection("dogs");
   const result = await collection.find().toArray();
 
   res.json({
-    message: "Result",
-    result: result,
+    message: "Lista psów",
+    dogs: result,
   });
 });
 
-router.post("/mongodb/execute", async (req, res, next) => {
-  const query = req.body.query;
-
-  let result = "Query/Collection not specified!";
-  let status = 500;
-  if (query) {
-    try {
-      // eg. query: `db.collection('indexes').insertOne({index_name: 'test'});
-      console.log("Mongo Executing:", query);
-      eval(query);
-      status = 200;
-    } catch (err) {
-      result = "Query error. See console.";
-      console.log(err);
-    }
-  }
-
-  res.status(status).json({
-    message: result,
-  });
-});
-
-// TEST CASE 1
-router.get("/mongodb/index", async (req, res, next) => {
-  const limit = Number(req.query.limit) ?? 100;
-  const collection = db.collection("spx_d_data");
-  const result = await collection.find().limit(limit).toArray();
-
-  result.forEach((row) => {
-    delete row.garbage;
-  });
+router.get("/breeds", async (req, res, next) => {
+  const collection = await db.collection("breeds");
+  const result = await collection.find().toArray();
 
   res.json({
-    result: result,
+    message: "Lista ras",
+    breeds: result,
   });
 });
 
-// TEST CASE 2
-router.get("/mongodb/company/:index", async (req, res, next) => {
-  const index = req.params.index;
-  const limit = Number(req.query.limit) ?? 100;
-  const collection = db.collection(index + "_data");
-  const result = await collection.find().limit(limit).toArray();
-
-  result.forEach((row) => {
-    delete row.garbage;
-  });
+router.get("/owners", async (req, res, next) => {
+  const collection = await db.collection("owners");
+  const result = await collection.find().toArray();
 
   res.json({
-    message: index + " index",
-    result: result,
+    message: "Lista właścicieli",
+    owners: result,
   });
 });
 
-// TEST CASE 3
-router.get("/mongodb/company/:index/sorted", async (req, res, next) => {
-  const index = req.params.index;
-  const limit = Number(req.query.limit) ?? 100;
-  const collection = db.collection(index + "_data");
-  const result = await collection
-    .find()
-    .sort({ day: -1 })
-    .limit(limit)
-    .toArray();
+router.post("/dogs/add", async (req, res, next) => {
+  const { dog_name, breed_id, color, weight, birth_date, adopted_date, acquired_date } = req.body;
 
-  result.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result,
-  });
-});
-
-// TEST CASE 4
-router.get("/mongodb/company/:index/avg", async (req, res, next) => {
-  const index = req.params.index;
-
-  const collection = db.collection(index + "_data");
-  const result = await collection
-    .aggregate([
-      {
-        $group: {
-          _id: index,
-          avg_closing: { $avg: "$closing" },
-          avg_opening: { $avg: "$opening" },
-          avg_highest: { $avg: "$highest" },
-          avg_lowest: { $avg: "$lowest" },
-        },
-      },
-    ])
-    .toArray();
-
-  res.json({
-    message: index + " index",
-    result: result,
-  });
-});
-
-// TEST CASE 5
-router.get("/mongodb/company/:index/filter", async (req, res, next) => {
-  const index = req.params.index;
-  const startDate = req.query.start_date;
-  const endDate = req.query.end_date;
-
-  const collection = db.collection(index + "_data");
-  const result = await collection
-    .find({ day: { $gte: new Date(startDate), $lte: new Date(endDate) } })
-    .toArray();
-
-  result.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result,
-  });
-});
-
-// TEST CASE 6
-router.post("/mongodb/company/:index/update", async (req, res, next) => {
-  const index = req.params.index;
-
-  const date = req.body.date;
-  const volume = Number(req.body.volume);
-
-  const collection = db.collection(index + "_data");
-  const result = await collection.updateOne(
-    { day: new Date(date) },
-    { $set: { volume } }
-  );
-
-  res.json({
-    message: index + " index",
-    result: result,
-  });
-});
-
-// TEST CASE 7
-router.delete("/mongodb/company/:index", async (req, res, next) => {
-  const index = req.params.index;
-
-  const date = req.query.date;
-
-  const collection = db.collection(index + "_data");
-  const result = await collection.deleteOne({ day: new Date(date) });
-
-  res.json({
-    message: index + " index",
-    result: result,
-  });
-});
-
-// TEST CASE 8
-router.post("/mongodb/company/:index/insert", async (req, res, next) => {
-  const index_name = req.params.index;
-
-  const day = req.body.day;
-  const volume = req.body.volume;
-  const opening = req.body.open;
-  const closing = req.body.close;
-  const highest = req.body.high;
-  const lowest = req.body.low;
-
-  const collection = db.collection(index_name + "_data");
+  const collection = db.collection("dogs");
   const result = await collection.insertOne({
-    index_name,
-    day,
-    volume,
-    opening,
-    closing,
-    highest,
-    lowest,
+    dog_name,
+    breed_id,
+    color,
+    weight,
+    birth_date: new Date(birth_date),
+    adopted_date: new Date(adopted_date),
+    acquired_date: new Date(acquired_date),
   });
 
   res.json({
-    message: index_name + " index",
+    message: "Dodano psa",
+    result: result,
+  });
+});
+
+router.post("/breeds/add", async (req, res, next) => {
+  const { breed_name, lifespan, country_of_origin } = req.body;
+
+  const collection = db.collection("breeds");
+  const result = await collection.insertOne({
+    breed_name,
+    lifespan,
+    country_of_origin,
+  });
+
+  res.json({
+    message: "Dodano rasę",
+    result: result,
+  });
+});
+
+router.post("/owners/add", async (req, res, next) => {
+  const { owner_name, owner_surname, telephone_number } = req.body;
+
+  const collection = db.collection("owners");
+  const result = await collection.insertOne({
+    owner_name,
+    owner_surname,
+    telephone_number,
+  });
+
+  res.json({
+    message: "Dodano właściciela",
     result: result,
   });
 });
