@@ -1,0 +1,8 @@
+dog_id.int32()
+dog_name.string()
+breed_id.int32()
+color.string()
+weight.double()
+birth_date.date(02/01/2006)
+adopted_date.date(02/01/2006)
+acquired_date.date(02/01/2006)
