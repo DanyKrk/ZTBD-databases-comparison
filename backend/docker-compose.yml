@@ -21,4 +21,9 @@ services:
       context: .
       dockerfile: docker/mongo.dockerfile
 
-      
+  redis:
+    ports:
+      - "6379:6379"
+    build:
+      context: .
+      dockerfile: docker/redis.dockerfile
