@@ -21,6 +21,15 @@ services:
       context: .
       dockerfile: docker/mongo.dockerfile
 
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"   
+    build:
+      context: .
+      dockerfile: docker/mysql.dockerfile
+      
   redis:
     ports:
       - "6379:6379"
