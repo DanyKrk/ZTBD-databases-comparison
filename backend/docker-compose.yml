@@ -24,6 +24,7 @@ services:
   mysql:
     environment:
       MYSQL_ROOT_PASSWORD: password
+      MYSQL_ALLOW_LOCAL_INFILE: "1"
     ports:
       - "3306:3306"   
     build:
