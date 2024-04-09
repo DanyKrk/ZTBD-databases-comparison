@@ -1,4 +1,4 @@
-set datestyle = euro;
+SET datestyle = "ISO, MDY";
 
 \copy breeds(breed_id, breed_name, lifespan, country_of_origin) FROM '/root/data/breeds_d.csv' WITH (FORMAT CSV, HEADER);
 
