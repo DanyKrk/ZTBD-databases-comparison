@@ -25,11 +25,29 @@ load_dogs_data() {
     echo "Dogs data loaded into Redis"
 }
 
+load_owners_data() {
+    while IFS=',' read -r owner_id owner_name owner_surname owner_phone owner_email; do
+        owner_email=$(echo "$owner_email" | tr -d '\r')
+        redis-cli HMSET "owners:$owner_id" owner_name "$owner_name" owner_surname "$owner_surname" owner_phone "$owner_phone" owner_email "$owner_email"
+    done < '/root/data/owners_d.csv'
+    echo "Owners data loaded into Redis"
+}
+
+load_adoptions_data() {
+    while IFS=',' read -r adoption_id owner_id dog_id adoption_date; do
+        adoption_date=$(echo "$adoption_date" | tr -d '\r')
+        redis-cli HMSET "adoptions:$adoption_id" owner_id "$owner_id" dog_id "$dog_id" adoption_date "$adoption_date"
+    done < '/root/data/adoption_d.csv'
+    echo "Adoptions data loaded into Redis"
+}
+
 main() {
     wait_for_redis
     echo "Loading data into Redis..."
     load_breeds_data
     load_dogs_data
+    load_owners_data
+    load_adoptions_data
     echo "Data loading into Redis completed"
 }
 
