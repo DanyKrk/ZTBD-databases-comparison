@@ -8,7 +8,7 @@ First setup docker.
 
 Next, run init scripts for databases.
 
-(backend-mongo-1, backend-postgres-1, backend-cassandra-1)
+(backend-mongo-1, backend-postgres-1, backend-redis-1)
 
 `docker exec CONTAINERNAME bash /root/data/init.sh`
 
