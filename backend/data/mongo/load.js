@@ -9,7 +9,16 @@ const indexesData = [
         full_name: 'Breeds',
         collection: 'breeds_d'
     },
-    // TODO: add owners
+    {
+        index_name: 'owners',
+        full_name: 'Owners',
+        collection: 'owners_d'
+    },
+    {
+        index_name: 'adoption',
+        full_name: 'Adoption',
+        collection: 'adoption_d'
+    }
 ];
 
 try {

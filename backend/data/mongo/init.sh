@@ -10,7 +10,7 @@ done
 echo "MongoDB online"
 
 echo "Preparing data ..."
-indexes=("dogs" "breeds")
+indexes=("dogs" "breeds" "owners" "adoption")
 for index in ${indexes[@]}; do
     cp /root/data/${index}_d.csv /root/data/mg_${index}_d.csv
 done
@@ -21,7 +21,7 @@ mongosh --quiet -u root -p example --authenticationDatabase admin -f /root/data/
 
 for index in ${indexes[@]}; do
     mongoimport --collection=${index} --db='ztbd' \
-     --columnsHaveTypes --fieldFile=/root/data/fields --file=/root/data/mg_${index}_d.csv --type=csv \
+     --type=csv --headerline --file=/root/data/mg_${index}_d.csv \
      -u root -p example --authenticationDatabase=admin
 done
 
