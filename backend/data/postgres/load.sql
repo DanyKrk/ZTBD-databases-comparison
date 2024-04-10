@@ -6,4 +6,4 @@ SET datestyle = "ISO, MDY";
 
 \copy owners(owner_id, owner_name, owner_surname, owner_phone, owner_email) FROM '/root/data/owners_d.csv' WITH (FORMAT CSV, HEADER);
 
-\copy adoptions(adoption_id, owner_id, dog_id, adoption_date) FROM '/root/data/adoption_d.csv' WITH (FORMAT CSV, HEADER);
+\copy adoptions(adoption_id, owner_id, dog_id, adoption_date) FROM '/root/data/adoptions_d.csv' WITH (FORMAT CSV, HEADER);

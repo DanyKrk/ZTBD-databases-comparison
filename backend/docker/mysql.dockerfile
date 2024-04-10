@@ -9,3 +9,6 @@ COPY data/xgarbage.bytes /root/data
 RUN chmod +x /root/data/init.sh
 RUN chmod -R u+r /root/data
 
+# Enable loading local data
+RUN echo "[mysqld]" > /etc/mysql/conf.d/local-infile.cnf \
+    && echo "local-infile=1" >> /etc/mysql/conf.d/local-infile.cnf 
