@@ -1,3 +1,5 @@
+USE DOGS_DATABASE_MYSQL;
+
 LOAD DATA LOCAL INFILE '/root/data/breeds_d.csv'
 INTO TABLE breeds
 FIELDS TERMINATED BY ',' 
