@@ -37,7 +37,7 @@ load_adoptions_data() {
     while IFS=',' read -r adoption_id owner_id dog_id adoption_date; do
         adoption_date=$(echo "$adoption_date" | tr -d '\r')
         redis-cli HMSET "adoptions:$adoption_id" owner_id "$owner_id" dog_id "$dog_id" adoption_date "$adoption_date"
-    done < '/root/data/adoption_d.csv'
+    done < '/root/data/adoptions_d.csv'
     echo "Adoptions data loaded into Redis"
 }
 

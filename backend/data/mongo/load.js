@@ -15,9 +15,9 @@ const indexesData = [
         collection: 'owners_d'
     },
     {
-        index_name: 'adoption',
-        full_name: 'Adoption',
-        collection: 'adoption_d'
+        index_name: 'adoptions',
+        full_name: 'Adoptions',
+        collection: 'adoptions_d'
     }
 ];
 

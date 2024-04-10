@@ -10,7 +10,7 @@ done
 echo "MongoDB online"
 
 echo "Preparing data ..."
-indexes=("dogs" "breeds" "owners" "adoption")
+indexes=("dogs" "breeds" "owners" "adoptions")
 for index in ${indexes[@]}; do
     cp /root/data/${index}_d.csv /root/data/mg_${index}_d.csv
 done

@@ -21,7 +21,7 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES;
 
-LOAD DATA LOCAL INFILE '/root/data/adoption_d.csv'
+LOAD DATA LOCAL INFILE '/root/data/adoptions_d.csv'
 INTO TABLE adoptions
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
