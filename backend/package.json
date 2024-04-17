@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "apexcharts": "^3.48.0",
+    "axios": "^1.6.8",
+    "chart.js": "^4.4.2",
     "express": "^4.18.2",
     "mongodb": "^5.1.0",
     "mysql": "^2.18.1",
