@@ -43,23 +43,23 @@ async function runTestCases() {
 
         await executeTestCase('postgres', testCase1Postgres);
         await executeTestCase('postgres', testCase2Postgres);
-        // await executeTestCase('postgres', testCase3Postgres);
-        // await executeTestCase('postgres', testCase4Postgres);
-        // await executeTestCase('postgres', testCase5Postgres);
-        // await executeTestCase('postgres', testCase6Postgres);
-        // await executeTestCase('postgres', testCase7Postgres);
-        // await executeTestCase('postgres', testCase8Postgres);
-        // await executeTestCase('postgres', testCase9Postgres);
+        await executeTestCase('postgres', testCase3Postgres);
+        await executeTestCase('postgres', testCase4Postgres);
+        await executeTestCase('postgres', testCase5Postgres);
+        await executeTestCase('postgres', testCase6Postgres);
+        await executeTestCase('postgres', testCase7Postgres);
+        await executeTestCase('postgres', testCase8Postgres);
+        await executeTestCase('postgres', testCase9Postgres);
 
-        // await executeTestCase('mongo', testCase1Mongo);
-        // await executeTestCase('mongo', testCase2Mongo);
-        // await executeTestCase('mongo', testCase3Mongo);
-        // await executeTestCase('mongo', testCase4Mongo);
+        await executeTestCase('mongo', testCase1Mongo);
+        await executeTestCase('mongo', testCase2Mongo);
+        await executeTestCase('mongo', testCase3Mongo);
+        await executeTestCase('mongo', testCase4Mongo);
         // await executeTestCase('mongo', testCase5Mongo);
-        // await executeTestCase('mongo', testCase6Mongo);
-        // await executeTestCase('mongo', testCase7Mongo);
-        // await executeTestCase('mongo', testCase8Mongo);
-        // await executeTestCase('mongo', testCase9Mongo);
+        await executeTestCase('mongo', testCase6Mongo);
+        await executeTestCase('mongo', testCase7Mongo);
+        await executeTestCase('mongo', testCase8Mongo);
+        await executeTestCase('mongo', testCase9Mongo);
 
     }
     // Calculate the average execution time per test case for each database

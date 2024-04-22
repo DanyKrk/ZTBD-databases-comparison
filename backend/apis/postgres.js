@@ -38,7 +38,12 @@ async function testCase1Postgres() {
   }
 }
 router.get("/postgres/dogs", async (req, res, next) => {
-  testCase1Postgres()
+  try {
+    const data = await testCase1Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // TEST CASE 2
@@ -66,7 +71,7 @@ router.get("/postgres/breeds", async (req, res, next) => {
 
 // TEST CASE 3
 // Pobieranie psów o określonym kolorze
-async function testCase3Postgres(color) {
+async function testCase3Postgres(color = "BROWN") {
   try {
     const result = await client.query("SELECT * FROM dogs WHERE color = $1;", [color.toUpperCase()]);
     return { message: `Psy o kolorze ${color}`, dogs: result.rows };
@@ -88,7 +93,7 @@ router.get("/postgres/dogs/color/:color", async (req, res, next) => {
 
 // TEST CASE 4
 // Pobieranie adopcji po określonej dacie
-async function testCase4Postgres(date) {
+async function testCase4Postgres(date = "01/22/2008") {
   try {
     const result = await client.query("SELECT * FROM adoptions WHERE adoption_date > $1;", [date]);
     return { message: `Adopcje po ${date}`, adoptions: result.rows };
@@ -180,7 +185,7 @@ router.get("/postgres/dogs-count-by-breed", async (req, res, next) => {
 
 // TEST CASE 8
 // Aktualizacja wagi psa o podanym id
-async function testCase8Postgres(dogId, newWeight) {
+async function testCase8Postgres(dogId = 1308, newWeight = 20) {
   try {
     const result = await client.query("UPDATE dogs SET weight = $1 WHERE dog_id = $2;", [newWeight, dogId]);
     return { message: "Zaktualizowano wagę psa", dogId };
@@ -203,7 +208,7 @@ router.put("/postgres/dogs/:id/weight/:weight", async (req, res, next) => {
 
 // TEST CASE 9
 // Aktualizacja daty adopcji dla konkretnego psa i właściciela
-async function testCase9Postgres(ownerId, dogId, newAdoptionDate) {
+async function testCase9Postgres(ownerId = 13, dogId = 2584, newAdoptionDate = "07/28/2010") {
   try {
     const result = await client.query("UPDATE adoptions SET adoption_date = $1 WHERE owner_id = $2 AND dog_id = $3;", [newAdoptionDate, ownerId, dogId]);
     return { message: "Zaktualizowano datę adopcji dla psa i właściciela", ownerId, dogId };

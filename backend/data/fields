@@ -6,3 +6,5 @@ weight.double()
 birth_date.date(02/01/2006)
 adopted_date.date(02/01/2006)
 acquired_date.date(02/01/2006)
+
+#wyrzucic id zeby mongo sam wygenerowal albo uuid zamiast int32
