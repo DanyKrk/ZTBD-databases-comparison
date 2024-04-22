@@ -81,13 +81,13 @@ router.post("/owners/add", async (req, res, next) => {
 
 // TESTCASE 1
 // Wszystkie dane z kolekcji psów.
-async function testCase1Mongo() {
+async function testCase1Mongo(req, res) {
   try {
-    const dogs = await Dog.find();
-    res.json({ message: "Wszytskie pieski", dogs });
+    const collection = db.collection("dogs");
+    const dogs = await collection.find();
+    return({ message: "Wszytskie pieski", dogs });
   } catch (err) {
     console.error("Błąd podczas pobierania danych psów:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas pobierania danych psów" });
   }
 }
 
@@ -104,11 +104,11 @@ router.get("/mongodb/dogs", async (req, res, next) => {
 // Wszystkie dane z kolekcji ras.
 async function testCase2Mongo() {
   try {
-    const breeds = await Breed.find();
-    res.json({ message: "Wszytskie rasy", breeds });
+    const collection = db.collection("breeds");
+    const breeds = await collection.find();
+    return({ message: "Wszytskie rasy", breeds });
   } catch (err) {
     console.error("Błąd podczas pobierania danych ras:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas pobierania danych ras" });
   }
 }
 router.get("/mongodb/breeds", async (req, res, next) => {
@@ -124,19 +124,20 @@ router.get("/mongodb/breeds", async (req, res, next) => {
 
 // TESTCASE 3
 // Pobieranie psów o określonym kolorze
-async function testCase3Mongo() {
-  const color = req.params.color.toLowerCase();
+async function testCase3Mongo(color = "BROWN") {
   try {
-    const dogs = await Dog.find({ color: color });
-    res.json({ message: `Psy o kolorze ${color}`, dogs });
+    const collection = db.collection("dogs");
+    const dogs = await collection.find({ color: color.toUpperCase() });
+    return({ message: `Psy o kolorze ${color}`, dogs });
   } catch (err) {
     console.error(`Błąd podczas pobierania psów o kolorze ${color}:`, err);
-    res.status(500).json({ error: `Wystąpił błąd podczas pobierania psów o kolorze ${color}` });
   }
 }
+
 router.get("/mongodb/dogs/color/:color", async (req, res, next) => {
+  const { color } = req.params;
   try {
-    const data = await testCase3Mongo();
+    const data = await testCase3Mongo(color);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -145,19 +146,19 @@ router.get("/mongodb/dogs/color/:color", async (req, res, next) => {
 
 // TESTCASE 4
 // Pobieranie adopcji po określonej dacie
-async function testCase4Mongo() {
-  const date = new Date(req.params.date);
+async function testCase4Mongo(date = "01/22/2008") {
   try {
-    const adoptions = await Adoption.find({ adoption_date: { $gt: date } });
-    res.json({ message: `Adopcje po ${date.toISOString()}`, adoptions });
+    const collection = db.collection("dogs");
+    const adoptions = await collection.find({ adoption_date: { $gt: date } });
+    return({ message: `Adopcje po ${date}`, adoptions });
   } catch (err) {
     console.error(`Błąd podczas pobierania adopcji po ${date}:`, err);
-    res.status(500).json({ error: `Wystąpił błąd podczas pobierania adopcji po ${date}` });
   }
 }
 router.get("/mongodb/adoptions/date/:date", async (req, res, next) => {
+  const date = new Date(req.params.date);
   try {
-    const data = await testCase4Mongo();
+    const data = await testCase4Mongo(date);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -165,6 +166,8 @@ router.get("/mongodb/adoptions/date/:date", async (req, res, next) => {
 });
 
 // -- SELECTY Z ŁĄCZENIEM TABEL --
+
+// TODO: Fix !!!!!
 
 // TESTCASE 5
 // Pobieranie imion psów i nazw ras
@@ -186,10 +189,9 @@ async function testCase5Mongo() {
         }
       }
     ]);
-    res.json({ message: "Imiona psów i nazwy ras", data: dogsBreeds });
+    return({ message: "Imiona psów i nazwy ras", data: dogsBreeds });
   } catch (err) {
     console.error("Błąd podczas pobierania imion psów i nazw ras:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas pobierania imion psów i nazw ras" });
   }
 }
 router.get("/mongodb/dogs-breeds", async (req, res, next) => {
@@ -205,13 +207,14 @@ router.get("/mongodb/dogs-breeds", async (req, res, next) => {
 // Pobieranie psów o rasach pochodzących z USA
 async function testCase6Mongo() {
   try {
-    const usaBreeds = await Breed.find({ country_of_origin: "USA" });
+    const collection = db.collection("breeds");
+    const dogsCollection = db.collection("dogs");
+    const usaBreeds = await collection.find({ country_of_origin: "USA" });
     const usaBreedsIds = usaBreeds.map(breed => breed.breed_id);
-    const usaDogs = await Dog.find({ breed_id: { $in: usaBreedsIds } });
-    res.json({ message: "Psy o rasach pochodzących z USA", data: usaDogs });
+    const usaDogs = await dogsCollection.find({ breed_id: { $in: usaBreedsIds } });
+    return({ message: "Psy o rasach pochodzących z USA", data: usaDogs });
   } catch (err) {
     console.error("Błąd podczas pobierania psów o rasach pochodzących z USA:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas pobierania psów o rasach pochodzących z USA" });
   }
 }
 router.get("/mongodb/dogs-usa-breeds", async (req, res, next) => {
@@ -229,7 +232,8 @@ router.get("/mongodb/dogs-usa-breeds", async (req, res, next) => {
 // Pobieranie liczby psów dla każdej rasy, które mają więcej niż 5 osobników
 async function testCase7Mongo() {
   try {
-    const dogsCountByBreed = await Dog.aggregate([
+    const collection = db.collection("dogs");
+    const dogsCountByBreed = await collection.aggregate([
       {
         $group: {
           _id: "$breed_id",
@@ -242,10 +246,9 @@ async function testCase7Mongo() {
         }
       }
     ]);
-    res.json({ message: "Liczba psów dla każdej rasy, która ma więcej niż 5 osobników", data: dogsCountByBreed });
+    return({ message: "Liczba psów dla każdej rasy, która ma więcej niż 5 osobników", data: dogsCountByBreed });
   } catch (err) {
     console.error("Błąd podczas pobierania liczby psów dla każdej rasy:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas pobierania liczby psów dla każdej rasy" });
   }
 }
 router.get("/mongodb/dogs-count-by-breed", async (req, res, next) => {
@@ -261,20 +264,21 @@ router.get("/mongodb/dogs-count-by-breed", async (req, res, next) => {
 
 // TEST CASE 8
 // Aktualizacja wagi psa o podanym id
-async function testCase8Mongo() {
-  const dogId = req.params.id;
-  const newWeight = req.params.weight;
+async function testCase8Mongo(dogId = 1308, newWeight = 20) {
+  const collection = db.collection("dogs");
+
   try {
-    await Dog.findByIdAndUpdate(dogId, { $set: { weight: newWeight } });
-    res.json({ message: "Zaktualizowano wagę psa", dogId });
+    await collection.findOneAndUpdate({ dogId: dogId }, { $set: { weight: newWeight } });
+    return({ message: "Zaktualizowano wagę psa", dogId });
   } catch (err) {
     console.error("Błąd podczas aktualizacji wagi psa:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas aktualizacji wagi psa" });
   }
 }
 router.put("/mongodb/dogs/:id/weight/:weight", async (req, res, next) => {
+  const dogId = req.params.id;
+  const newWeight = req.params.weight;
   try {
-    const data = await testCase8Mongo();
+    const data = await testCase8Mongo(dogId, newWeight);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -284,22 +288,21 @@ router.put("/mongodb/dogs/:id/weight/:weight", async (req, res, next) => {
 
 // TEST CASE 9
 // Aktualizacja daty adopcji dla konkretnego psa i właściciela
-async function testCase9Mongo() {
-  const ownerId = req.params.ownerId;
-  const dogId = req.params.dogId;
-  const newAdoptionDate = req.body.adoption_date;
-
+async function testCase9Mongo(ownerId = 13, dogId = 2584, newAdoptionDate = "07/28/2010") {
   try {
-    await Adoption.updateOne({ owner_id: ownerId, dog_id: dogId }, { $set: { adoption_date: newAdoptionDate } });
-    res.json({ message: "Zaktualizowano datę adopcji dla psa i właściciela", ownerId, dogId });
+    const collection = db.collection("adoptions");
+    await collection.updateOne({ owner_id: ownerId, dog_id: dogId }, { $set: { adoption_date: newAdoptionDate } });
+    return({ message: "Zaktualizowano datę adopcji dla psa i właściciela", ownerId, dogId });
   } catch (err) {
     console.error("Błąd podczas aktualizacji daty adopcji dla psa i właściciela:", err);
-    res.status(500).json({ error: "Wystąpił błąd podczas aktualizacji daty adopcji dla psa i właściciela" });
   }
 }
 router.put("/mongodb/adoptions/:ownerId/:dogId/adoption-date", async (req, res, next) => {
+  const ownerId = req.params.ownerId;
+  const dogId = req.params.dogId;
+  const newAdoptionDate = req.body.adoption_date;
   try {
-    const data = await testCase9Mongo();
+    const data = await testCase9Mongo(ownerId, dogId, newAdoptionDate);
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
