@@ -30,8 +30,7 @@ router.get("/postgres/status", async (req, res, next) => {
 async function testCase1Postgres() {
   try {
     const result = await client.query("SELECT * FROM dogs;");
-    // return { message: "Wszytskie pieski", dogs: result.rows };
-    return { message: "git" }
+    return { message: "Wszytskie pieski", dogs: result.rows };
   } catch (err) {
     console.error("Błąd podczas pobierania danych psów:", err);
     throw new Error("Wystąpił błąd podczas pobierania danych psów");
@@ -93,7 +92,7 @@ router.get("/postgres/dogs/color/:color", async (req, res, next) => {
 
 // TEST CASE 4
 // Pobieranie adopcji po określonej dacie
-async function testCase4Postgres(date = "01/22/2008") {
+async function testCase4Postgres(date = "2008-01-22") {
   try {
     const result = await client.query("SELECT * FROM adoptions WHERE adoption_date > $1;", [date]);
     return { message: `Adopcje po ${date}`, adoptions: result.rows };
@@ -141,7 +140,7 @@ router.get("/postgres/dogs-breeds", async (req, res, next) => {
 // Pobieranie psów o rasach pochodzących z USA
 async function testCase6Postgres() {
   try {
-    const result = await client.query("SELECT * FROM dogs WHERE breed_id IN (SELECT breed_id FROM breeds WHERE country_of_origin = 'USA');");
+    const result = await client.query("SELECT * FROM dogs WHERE breed_id IN (SELECT breed_id FROM breeds WHERE country_of_origin = 'ST');");
     return { message: "Psy o rasach pochodzących z USA", data: result.rows };
   } catch (err) {
     console.error("Błąd podczas pobierania psów o rasach pochodzących z USA:", err);
