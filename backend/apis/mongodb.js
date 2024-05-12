@@ -84,7 +84,7 @@ router.post("/owners/add", async (req, res, next) => {
 async function testCase1Mongo(req, res) {
   try {
     const collection = db.collection("dogs");
-    const dogs = await collection.find();
+    const dogs = await collection.find().toArray();
     return({ message: "Wszytskie pieski", dogs });
   } catch (err) {
     console.error("Błąd podczas pobierania danych psów:", err);
@@ -105,7 +105,7 @@ router.get("/mongodb/dogs", async (req, res, next) => {
 async function testCase2Mongo() {
   try {
     const collection = db.collection("breeds");
-    const breeds = await collection.find();
+    const breeds = collection.find().toArray();
     return({ message: "Wszytskie rasy", breeds });
   } catch (err) {
     console.error("Błąd podczas pobierania danych ras:", err);
@@ -127,7 +127,7 @@ router.get("/mongodb/breeds", async (req, res, next) => {
 async function testCase3Mongo(color = "BROWN") {
   try {
     const collection = db.collection("dogs");
-    const dogs = await collection.find({ color: color.toUpperCase() });
+    const dogs = await collection.find({ color: color.toUpperCase() }).toArray();
     return({ message: `Psy o kolorze ${color}`, dogs });
   } catch (err) {
     console.error(`Błąd podczas pobierania psów o kolorze ${color}:`, err);
@@ -149,7 +149,7 @@ router.get("/mongodb/dogs/color/:color", async (req, res, next) => {
 async function testCase4Mongo(date = "01/22/2008") {
   try {
     const collection = db.collection("dogs");
-    const adoptions = await collection.find({ adoption_date: { $gt: date } });
+    const adoptions = await collection.find({ adoption_date: { $gt: date } }).toArray();
     return({ message: `Adopcje po ${date}`, adoptions });
   } catch (err) {
     console.error(`Błąd podczas pobierania adopcji po ${date}:`, err);
@@ -209,7 +209,7 @@ async function testCase6Mongo() {
   try {
     const collection = db.collection("breeds");
     const dogsCollection = db.collection("dogs");
-    const usaBreeds = await collection.find({ country_of_origin: "USA" });
+    const usaBreeds = await collection.find({ country_of_origin: "ST" });
     const usaBreedsIds = usaBreeds.map(breed => breed.breed_id);
     const usaDogs = await dogsCollection.find({ breed_id: { $in: usaBreedsIds } });
     return({ message: "Psy o rasach pochodzących z USA", data: usaDogs });
