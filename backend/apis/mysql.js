@@ -1,5 +1,5 @@
 import express from "express";
-import mysql from "mysql";
+import mysql from "mysql2";
 
 export const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get("/mysql", (req, res, next) => {
       console.error(error);
       res.status(500).json({ message: "Error retrieving tables." });
     } else {
-      const tables = results.map(result => result.Tables_in_your_database_name);
+      const tables = results.map(result => result);
       res.json({ message: "Available tables", tables: tables });
     }
   });
@@ -32,7 +32,7 @@ router.get("/mysql/status", (req, res, next) => {
       console.error(error);
       res.status(500).json({ message: "Error retrieving MySQL version." });
     } else {
-      res.json({ message: "MySQL is up and running!", version: results[0].VERSION() });
+      res.json({ message: "MySQL is up and running!", version: results[0]});
     }
   });
 });
@@ -49,7 +49,7 @@ async function testCase1MySQL() {
   }
 }
 
-router.get("/mongodb/dogs", async (req, res, next) => {
+router.get("/mysql/dogs", async (req, res, next) => {
   try {
     const data = await testCase1MySQL();
     res.json(data);
