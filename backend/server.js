@@ -38,10 +38,9 @@ app.get("/run-tests", (req, res) => {
 
 import { router as router_mongodb } from "./apis/mongodb.js"
 import { router as router_postgres } from "./apis/postgres.js"
-// import { router as router_mysql } from "./apis/mysql.js"
-
-import { router as router_test } from "./apis/test.js"
+import { router as router_redis } from "./apis/redis.js";
+import { router as router_mysql } from "./apis/mysql.js"
 app.use(router_mongodb)
 app.use(router_postgres)
-// app.use(router_mysql)
-app.use(router_test)
+app.use(router_redis)
+app.use(router_mysql)
