@@ -7,7 +7,8 @@ export const router = express.Router();
 
 import { testCase1Postgres, testCase2Postgres, testCase3Postgres, testCase4Postgres, testCase5Postgres, testCase6Postgres, testCase7Postgres, testCase8Postgres, testCase9Postgres } from './postgres.js';
 import { testCase1Mongo, testCase2Mongo, testCase3Mongo, testCase4Mongo, testCase5Mongo, testCase6Mongo, testCase7Mongo, testCase8Mongo, testCase9Mongo } from "./mongodb.js";
-
+import { testCase1MySQL, testCase2MySQL, testCase3MySQL, testCase4MySQL, testCase5MySQL, testCase6MySQL, testCase7MySQL, testCase8MySQL, testCase9MySQL } from "./mysql.js";
+import { testCase1Redis, testCase2Redis } from "./redis.js"
 
 const executionTimes = {
     postgres: {},
@@ -61,6 +62,26 @@ async function runTestCases() {
         await executeTestCase('mongo', testCase8Mongo);
         await executeTestCase('mongo', testCase9Mongo);
 
+        // await executeTestCase('mysql', testCase1MySQL);
+        // await executeTestCase('mysql', testCase2MySQL);
+        // await executeTestCase('mysql', testCase3MySQL);
+        // await executeTestCase('mysql', testCase4MySQL);
+        // await executeTestCase('mysql', testCase5MySQL);
+        // await executeTestCase('mysql', testCase6MySQL);
+        // await executeTestCase('mysql', testCase7MySQL);
+        // await executeTestCase('mysql', testCase8MySQL);
+        // await executeTestCase('mysql', testCase9MySQL);
+
+        await executeTestCase('redis', testCase1Redis);
+        await executeTestCase('redis', testCase2Redis);
+        // await executeTestCase('redis', testCase3Redis);
+        // await executeTestCase('redis', testCase4Redis);
+        // await executeTestCase('redis', testCase5Redis);
+        // await executeTestCase('redis', testCase6Redis);
+        // await executeTestCase('redis', testCase7Redis);
+        // await executeTestCase('redis', testCase8Redis);
+        // await executeTestCase('redis', testCase9Redis);
+
     }
     // Calculate the average execution time per test case for each database
     const averageExecutionTimes = {};
@@ -79,5 +100,6 @@ async function runTestCases() {
     fs.writeFileSync('averageExecutionTimes.json', JSON.stringify(averageExecutionTimes));
 }
 
+export default runTestCases
 
 runTestCases();

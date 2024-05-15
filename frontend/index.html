@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Execution Times Bar Charts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    .chart-container {
+      margin: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: white;
+      width: calc(60% - 40px);
+      float: left;
+      position: relative;
+    }
+    .small-chart-container {
+      margin: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: white;
+      width: calc(30% - 40px);
+      float: left;
+      position: relative;
+    }
+    canvas {
+      margin-bottom: 10px;
+    }
+    .y-axis {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      width: 30px;
+      height: calc(100% - 40px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .y-axis span {
+      text-align: right;
+      padding-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- <button onclick="{() => runTestCases()}">Run Tests!</button> -->
+  <!-- <div class="chart-container" id="allDatabasesChart">
+    <h3>All Databases Execution Times</h3>
+    <div class="y-axis" id="allDatabasesYAxis"></div>
+    <canvas id="allDatabasesBarChart" width="800" height="300"></canvas>
+  </div> -->
+  <div class="chart-container" id="postgresChart">
+    <h3>PostgreSQL Execution Times</h3>
+    <div class="y-axis" id="postgresYAxis"></div>
+    <canvas id="postgresBarChart" width="800" height="300"></canvas>
+  </div>
+  <div class="chart-container" id="mongoChart">
+    <h3>MongoDB Execution Times</h3>
+    <div class="y-axis" id="mongoYAxis"></div>
+    <canvas id="mongoBarChart" width="800" height="300"></canvas>
+  </div>
+  <div class="chart-container" id="mysqlChart">
+    <h3>MySQL Execution Times</h3>
+    <div class="y-axis" id="mysqlYAxis"></div>
+    <canvas id="mysqlBarChart" width="800" height="300"></canvas>
+  </div>
+  <div class="chart-container" id="redisChart">
+    <h3>Redis Execution Times</h3>
+    <div class="y-axis" id="redisYAxis"></div>
+    <canvas id="redisBarChart" width="800" height="300"></canvas>
+  </div>
+  <!-- <div class="chart-container" id="1testcasechart">
+    <h3>1 Test Case Times</h3>
+    <canvas id="test" width="800" height="300"></canvas>
+  </div> -->
+  
+  <script src="../backend/apis/test.js"></script>
+  <script>
+    function drawBarChart(canvasId, labels, values, color) {
+      var canvas = document.getElementById(canvasId);
+      var ctx = canvas.getContext("2d");
+
+      var barWidth = 60;
+      var barSpacing = 20;
+
+      var chartHeight = canvas.height - 40;
+
+      var maxValue = Math.max(...values);
+
+      for (var i = 0; i < labels.length; i++) {
+        var barHeight = (values[i] / maxValue) * chartHeight;
+
+        var x = i * (barWidth + barSpacing) + 40;
+        var y = canvas.height - barHeight - 20;
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        ctx.fillStyle = "#000";
+        ctx.fillText(values[i].toFixed(2), x + 10, y - 5);
+
+        ctx.fillText(labels[i], x + 10, canvas.height - 5);
+      }
+    }
+
+    function shortenLabels(data) {
+      const shortData = {};
+      for (const key in data) {
+        const newKey = key.replace(/^testCase(\d+)(\w+)/, '$1$2');
+        shortData[newKey] = data[key];
+      }
+      return shortData;
+    }
+
+  function prepareTestCaseData(testCaseNumber, data) {
+  const testCaseKey = `testCase${testCaseNumber}`;
+  return {
+    PostgreSQL: data.postgres[testCaseKey] || 0,
+    MongoDB: data.mongo[testCaseKey] || 0,
+    MySQL: data.mysql[testCaseKey] || 0,
+    Redis: data.redis[testCaseKey] || 0
+  };
+}
+
+function drawSmallCharts(canvasId, testCases, data) {
+      const container = document.getElementById("smallChartsContainer");
+      container.innerHTML = '';
+
+      testCases.forEach(testCaseNumber => {
+        const testCaseData = prepareTestCaseData(testCaseNumber, data);
+
+        const div = document.createElement('div');
+        div.className = 'small-chart-container';
+
+        const canvasId = `testCase${testCaseNumber}Chart`;
+        div.innerHTML = `
+          <h3>Test Case ${testCaseNumber} Execution Times</h3>
+          <canvas id="${canvasId}" width="400" height="200"></canvas>
+        `;
+
+        container.appendChild(div);
+
+        const labels = Object.keys(testCaseData);
+        const values = Object.values(testCaseData);
+        const colors = ['#007bff', '#28a745', '#ffc107', '#dc3545'];
+
+        drawBarChart(canvasId, labels, values, colors);
+      });
+    }
+
+    fetch("../backend/averageExecutionTimes.json")
+      .then(response => response.json())
+      .then(data => {
+        data.postgres = shortenLabels(data.postgres);
+        data.mongo = shortenLabels(data.mongo);
+        data.mysql = shortenLabels(data.mysql);
+        data.redis = shortenLabels(data.redis);
+
+        
+        // drawBarChart("allDatabasesBarChart", Object.keys(data.redis), Object.values(data.redis), "#dc3545");
+        // drawBarChart("allDatabasesBarChart", Object.keys(data.postgres), Object.values(data.postgres), "#007bff");
+        // drawBarChart("allDatabasesBarChart", Object.keys(data.mysql), Object.values(data.mysql), "#ffc107");
+        // drawBarChart("allDatabasesBarChart", Object.keys(data.mongo), Object.values(data.mongo), "#28a745");
+        
+
+        drawBarChart("postgresBarChart", Object.keys(data.postgres), Object.values(data.postgres), "#007bff");
+        drawBarChart("mongoBarChart", Object.keys(data.mongo), Object.values(data.mongo), "#28a745");
+        drawBarChart("mysqlBarChart", Object.keys(data.mysql), Object.values(data.mysql), "#ffc107");
+        drawBarChart("redisBarChart", Object.keys(data.redis), Object.values(data.redis), "#dc3545");
+
+        drawBarChart("1 Test Case ", Object.keys(data.redis), Object.values(data.redis), "#dc3545");
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
+      });
+  </script>
+</body>
+</html>

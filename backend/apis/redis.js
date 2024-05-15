@@ -13,7 +13,7 @@ await client.connect();
 
 // TESTCASE 1
 // Wszystkie dane z kolekcji psów.
-async function getAllDogs() {
+async function testCase1Redis() {
   try {
     const dogKeys = await client.keys('dogs:*');
     const dogList = await Promise.all(dogKeys.map(async ownerKey => {
@@ -27,7 +27,7 @@ async function getAllDogs() {
 
 router.get("/redis/dogs", async (req, res, next) => {
   try {
-    const dogList = await getAllDogs();
+    const dogList = await testCase1Redis();
     res.json(dogList);
   } catch (error) {
     console.error("Error:", error);
@@ -52,7 +52,7 @@ router.get("/redis/dogs/:id", async (req, res, next) => {
 
 // TESTCASE 2
 // Wszystkie dane z kolekcji ras.
-async function getAllBreeds() {
+async function testCase2Redis() {
   try {
     const breedKeys = await client.keys('breeds:*');
     const breedList = await Promise.all(breedKeys.map(async ownerKey => {
@@ -66,7 +66,7 @@ async function getAllBreeds() {
 
 router.get("/redis/breeds", async (req, res, next) => {
   try {
-    const breedList = await getAllBreeds();
+    const breedList = await testCase2Redis();
     res.json(breedList);
   } catch (error) {
     console.error("Error:", error);
@@ -355,3 +355,6 @@ router.put("/redis/adoptions/:ownerId/:dogId/adoption-date", async (req, res, ne
 });
 
 export default router;
+export { testCase1Redis, testCase2Redis};
+
+// , testCase3Redis, testCase4Redis, testCase5Redis, testCase6Redis, testCase7Redis, testCase8Redis, testCase9Redis 
