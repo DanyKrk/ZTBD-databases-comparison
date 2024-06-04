@@ -3,7 +3,7 @@ import path from 'path';
 import runTestCases from "./apis/test.js";
 
 export const app = express()
-const PORT = 8000
+const PORT = 8010
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
@@ -24,6 +24,11 @@ app.get("/", (req, res, nest) => {
             Serving: ["MongoDB", "PostgreSQL", "Redis", "MySQL"]
         }
     )
+        // // Resolve the absolute path to the test.html file
+        const filePath = path.resolve(process.cwd(), '../frontend/index.html');
+  
+        // Send the file
+        res.sendFile(filePath);
 })
 
 app.get("/run-tests", (req, res) => {
@@ -32,10 +37,10 @@ app.get("/run-tests", (req, res) => {
     runTestCases();
   
     // // Resolve the absolute path to the test.html file
-    // const filePath = path.resolve(process.cwd(), '../frontend/index.html');
+    const filePath = path.resolve(process.cwd(), '../frontend/index.html');
   
-    // // Send the file
-    // res.sendFile(filePath);
+    // Send the file
+    res.sendFile(filePath);
   });
 
 import { router as router_mongodb } from "./apis/mongodb.js"

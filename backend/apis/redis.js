@@ -25,6 +25,18 @@ async function testCase1Redis() {
   }
 }
 
+async function getAllDogs() {
+  try {
+    const dogKeys = await client.keys('dogs:*');
+    const dogList = await Promise.all(dogKeys.map(async ownerKey => {
+      return await client.hGetAll(ownerKey);
+    }));
+    return dogList;
+  } catch (error) {
+    throw error;
+  }
+}
+
 router.get("/redis/dogs", async (req, res, next) => {
   try {
     const dogList = await testCase1Redis();
@@ -155,6 +167,16 @@ router.get("/redis/adoptions/:id", async (req, res, next) => {
 
 // TESTCASE 3
 // Pobieranie psów o określonym kolorze
+async function testCase3Redis() {
+  try {
+    const allDogs = await getAllDogs();
+    const dogsWithColor = allDogs.filter(dog => dog.color.toLowerCase() === "BROWN");
+    return dogsWithColor;
+  } catch (error) {
+    throw error;
+  }
+}
+
 router.get("/redis/dogs/color/:color", async (req, res, next) => {
   const color = req.params.color.toLowerCase();
   try {
@@ -169,6 +191,15 @@ router.get("/redis/dogs/color/:color", async (req, res, next) => {
 
 // TESTCASE 4
 // Pobieranie adopcji po określonej dacie
+async function testCase4Redis() {
+  try {
+    const adoptions = await getAllAdoptions();
+    const adoptionsAfterDate = adoptions.filter(adoption => new Date(adoption.adoption_date) > "2008-01-22");
+    return adoptionsAfterDate;
+  } catch (error) {
+    throw error;
+  }
+}
 router.get("/redis/adoptions/date/:date", async (req, res, next) => {
   const date = new Date(req.params.date);
   try {
@@ -187,6 +218,31 @@ router.get("/redis/adoptions/date/:date", async (req, res, next) => {
 
 // TESTCASE 5
 // Pobieranie imion psów i nazw ras
+async function testCase5Redis() {
+  try {
+    // Pobranie wszystkich psów z Redis
+    const allDogs = await getAllDogs();
+
+    // Przygotowanie zapytania o nazwy ras dla każdego psa
+    const breedPromises = allDogs.map(async dog => {
+      // Pobranie informacji o rasie dla danego psa
+      const breedInfo = await client.hGetAll(`breeds:${dog.breed_id}`);
+      return breedInfo.breed_name;
+    });
+
+    // Oczekiwanie na zakończenie wszystkich zapytań
+    const breedNames = await Promise.all(breedPromises);
+
+    // Przygotowanie wyników do odpowiedzi
+    const result = allDogs.map((dog, index) => ({
+      dog_name: dog.dog_name,
+      breed_name: breedNames[index]
+    }));
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
 router.get("/redis/dogs-breeds", async (req, res, next) => {
   try {
     // Pobranie wszystkich psów z Redis
@@ -244,6 +300,23 @@ async function getAllBreedsParsed() {
 }
 // TESTCASE 6
 // Pobieranie psów o rasach pochodzących z ST
+async function testCase6Redis() {
+  try {
+    const allDogs = await getAllDogs();
+    
+    const allBreeds = await getAllBreedsParsed();
+
+    const usaBreedsIds = allBreeds
+      .filter(breed => breed.country_of_origin === 'ST')
+      .map(breed => breed.breed_id);
+
+    const usaDogs = allDogs.filter(dog => usaBreedsIds.includes(dog.breed_id));
+    return usaDogs;
+  } catch (error) {
+    throw error;
+  }
+}
+
 router.get("/redis/dogs-usa-breeds", async (req, res, next) => {
   try {
     const allDogs = await getAllDogs();
@@ -267,6 +340,23 @@ router.get("/redis/dogs-usa-breeds", async (req, res, next) => {
 
 // TEST CASE 7
 // Pobieranie liczby psów dla każdej rasy, które mają więcej niż 5 osobników
+async function testCase7Redis() {
+  try {
+    const allDogs = await getAllDogs();
+
+    const dogsCountByBreed = allDogs.reduce((countByBreed, dog) => {
+      countByBreed[dog.breed_id] = (countByBreed[dog.breed_id] || 0) + 1;
+      return countByBreed;
+    }, {});
+
+    const breedsWithMoreThanFiveDogs = Object.entries(dogsCountByBreed)
+      .filter(([breedId, count]) => count > 5)
+      .map(([breedId, count]) => ({ breed_id: breedId, total_dogs: count }));
+    return breedsWithMoreThanFiveDogs;
+  } catch (error) {
+    throw error;
+  }
+}
 
 router.get("/redis/dogs-count-by-breed", async (req, res, next) => {
   try {
@@ -292,6 +382,22 @@ router.get("/redis/dogs-count-by-breed", async (req, res, next) => {
 
 // TEST CASE 8
 // Aktualizacja wagi psa o podanym id
+async function testCase8Redis() {
+  const dogId = 1308
+  const newWeight = 20
+  try {
+    const dogExists = await client.exists(`dogs:${dogId}`);
+    if (!dogExists) {
+      return res.status(404).json({ error: "Pies o podanym identyfikatorze nie istnieje" });
+    }
+
+    await client.hSet(`dogs:${dogId}`, "weight", newWeight);
+    return dogId;
+  } catch (error) {
+    throw error;
+  }
+}
+
 router.put("/redis/dogs/:id/weight/:weight", async (req, res, next) => {
   const dogId = req.params.id;
   const newWeight = req.params.weight;
@@ -312,6 +418,17 @@ router.put("/redis/dogs/:id/weight/:weight", async (req, res, next) => {
 
 // TEST CASE 9
 // Aktualizacja daty adopcji dla konkretnego psa i właściciela
+async function testCase9Redis() {
+  const ownerId = 13
+  const dogId = 2584
+  const newAdoptionDate = "07/28/2010"
+  try {
+    await updateAdoptionDateInRedis(ownerId, dogId, newAdoptionDate);
+    return { message: "Zaktualizowano datę adopcji dla psa i właściciela", ownerId, dogId };
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function findAdoptionKey(ownerId, dogId) {
   try {
@@ -355,6 +472,4 @@ router.put("/redis/adoptions/:ownerId/:dogId/adoption-date", async (req, res, ne
 });
 
 export default router;
-export { testCase1Redis, testCase2Redis};
-
-// , testCase3Redis, testCase4Redis, testCase5Redis, testCase6Redis, testCase7Redis, testCase8Redis, testCase9Redis 
+export { testCase1Redis, testCase2Redis, testCase3Redis, testCase4Redis, testCase5Redis, testCase6Redis, testCase7Redis, testCase8Redis, testCase9Redis};
