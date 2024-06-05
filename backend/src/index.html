@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Simple Bar Chart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="barChart" width="500" height="300"></canvas>
+  <script>
+    var canvas = document.getElementById("barChart");
+    var ctx = canvas.getContext("2d");
+
+    // Define your chart data (labels and values)
+    var labels = ["Apples", "Oranges", "Berries", "Peaches", "Bananas"];
+    var values = [5, 10, 30, 50, 20];
+    
+    // Set chart bar width and spacing
+    var barWidth = 60;
+    var barSpacing = 20;
+
+    // Set chart area dimensions
+    var chartWidth = (barWidth + barSpacing) * labels.length;
+    var chartHeight = canvas.height - 40; // Leave space for labels
+
+    // Find the maximum value to scale the bars
+    var maxValue = Math.max(...values);
+
+    // Loop through data to draw bars and labels
+    for (var i = 0; i < labels.length; i++) {
+      // Calculate bar height based on canvas height and value
+      var barHeight = (values[i] / maxValue) * chartHeight;
+
+      // Calculate bar position
+      var x = i * (barWidth + barSpacing);
+      var y = canvas.height - barHeight - 20; // Leave space for labels
+
+      // Draw the bar
+      ctx.fillStyle = "#007bff"; // Set bar color
+      ctx.fillRect(x, y, barWidth, barHeight);
+
+      // Draw the label
+      ctx.fillStyle = "#000"; // Set label color
+      ctx.fillText(labels[i], x + 10, canvas.height - 5);
+    }
+  </script>
+</body>
+</html>

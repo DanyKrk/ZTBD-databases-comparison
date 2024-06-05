@@ -25,204 +25,208 @@ router.get("/postgres/status", async (req, res, next) => {
   res.json({ message: "Postgres, it's a classic!", version: result });
 });
 
-router.get("/postgres/company", async (req, res, next) => {
-  const result = await client.query("select * from indexes");
-  res.json({
-    message: "Result",
-    result: result.rows,
-  });
-});
-
-router.post("/postgres/execute", async (req, res, next) => {
-  const query = req.body.query;
-
-  let result = "Query not specified!";
-  let status = 500;
-  if (query) {
-    try {
-      // eg. query: "insert into indexes (index_name, full_name) values ('test', 'test')"
-      console.log("Postgres Executing:", query);
-      await client.query(query);
-      status = 200;
-      result = "Query Ok.";
-    } catch (err) {
-      result = "Query error. See console.";
-      console.log(err);
-    }
+// TESTCASE 1
+// Wszystkie dane z tabeli psów.
+async function testCase1Postgres() {
+  try {
+    const result = await client.query("SELECT * FROM dogs;");
+    return { message: "Wszytskie pieski", dogs: result.rows };
+  } catch (err) {
+    console.error("Błąd podczas pobierania danych psów:", err);
+    throw new Error("Wystąpił błąd podczas pobierania danych psów");
   }
-
-  res.status(status).json({
-    message: result,
-  });
-});
-
-// TEST CASE 1
-router.get("/postgres/index", async (req, res, next) => {
-  const limit = Number(req.query.limit) ?? 100;
-  const result = await client.query(`
-        select index_data.* 
-        from index_data join indexes using(index_id) 
-        limit ${limit}
-    `);
-
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    result: result.rows,
-  });
+}
+router.get("/postgres/dogs", async (req, res, next) => {
+  try {
+    const data = await testCase1Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // TEST CASE 2
-router.get("/postgres/company/:index", async (req, res, next) => {
-  const index = req.params.index;
-  const limit = Number(req.query.limit) ?? 100;
-  const result = await client.query(`
-        select index_company_data.*
-        from index_company_data join indexes using(index_id) 
-        where index_name = '${index}' limit ${limit}
-    `);
+// Wszystkie dane z tabeli ras.
+async function testCase2Postgres() {
+  try {
+    const result = await client.query("SELECT * FROM breeds;");
+    return { message: "Wszytskie rasy", breeds: result.rows };
+  } catch (err) {
+    console.error("Błąd podczas pobierania danych ras:", err);
+    throw new Error("Wystąpił błąd podczas pobierania danych ras");
+  }
+}
 
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/breeds", async (req, res, next) => {
+  try {
+    const data = await testCase2Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+// -- SELECTY Z WARUNKAMI -- 
+
 // TEST CASE 3
-router.get("/postgres/company/:index/sorted", async (req, res, next) => {
-  const index = req.params.index;
-  const limit = Number(req.query.limit) ?? 100;
-  const result = await client.query(`
-        select index_company_data.*
-        from index_company_data join indexes using(index_id) 
-        where index_name = '${index}' 
-        order by day desc
-        limit ${limit}
-    `);
+// Pobieranie psów o określonym kolorze
+async function testCase3Postgres(color = "BROWN") {
+  try {
+    const result = await client.query("SELECT * FROM dogs WHERE color = $1;", [color.toUpperCase()]);
+    return { message: `Psy o kolorze ${color}`, dogs: result.rows };
+  } catch (err) {
+    console.error(`Błąd podczas pobierania psów o kolorze ${color}:`, err);
+    throw new Error(`Wystąpił błąd podczas pobierania psów o kolorze ${color}`);
+  }
+}
 
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/dogs/color/:color", async (req, res, next) => {
+  const { color } = req.params;
+  try {
+    const data = await testCase3Postgres(color);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // TEST CASE 4
-router.get("/postgres/company/:index/avg", async (req, res, next) => {
-  const index = req.params.index;
+// Pobieranie adopcji po określonej dacie
+async function testCase4Postgres(date = "2008-01-22") {
+  try {
+    const result = await client.query("SELECT * FROM adoptions WHERE adoption_date > $1;", [date]);
+    return { message: `Adopcje po ${date}`, adoptions: result.rows };
+  } catch (err) {
+    console.error(`Błąd podczas pobierania adopcji po ${date}:`, err);
+    throw new Error(`Wystąpił błąd podczas pobierania adopcji po ${date}`);
+  }
+}
 
-  const result = await client.query(`
-        select 
-          icd.index_id,
-          avg(icd.closing) as avg_closing,
-          avg(icd.opening) as avg_opening,
-          avg(icd.highest) as avg_highest,
-          avg(icd.lowest) as avg_lowest
-        from
-          index_company_data icd
-        join "indexes" i using(index_id) 
-        where i.index_name  = '${index}'
-        group by icd.index_id
-    `);
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/adoptions/date/:date", async (req, res, next) => {
+  const { date } = req.params;
+  try {
+    const data = await testCase4Postgres(date);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// TEST CASE 5
-router.get("/postgres/company/:index/filter", async (req, res, next) => {
-  const index = req.params.index;
-  const startDate = req.query.start_date;
-  const endDate = req.query.end_date;
 
-  const result = await client.query(`
-        select index_company_data.*
-        from index_company_data join indexes using(index_id) 
-        where index_name = '${index}' and day >= '${startDate}' and day <= '${endDate}'
-    `);
+// -- SELECTY Z ŁĄCZENIEM TABEL -- 
 
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
+/// TEST CASE 5
+// Pobieranie imion psów i nazw ras
+async function testCase5Postgres() {
+  try {
+    const result = await client.query("SELECT d.dog_name, b.breed_name FROM dogs d JOIN breeds b ON d.breed_id = b.breed_id;");
+    return { message: "Imiona psów i nazwy ras", data: result.rows };
+  } catch (err) {
+    console.error("Błąd podczas pobierania imion psów i nazw ras:", err);
+    throw new Error("Wystąpił błąd podczas pobierania imion psów i nazw ras");
+  }
+}
 
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/dogs-breeds", async (req, res, next) => {
+  try {
+    const data = await testCase5Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // TEST CASE 6
-router.post("/postgres/company/:index/update", async (req, res, next) => {
-  const index = req.params.index;
+// Pobieranie psów o rasach pochodzących z USA
+async function testCase6Postgres() {
+  try {
+    const result = await client.query("SELECT * FROM dogs WHERE breed_id IN (SELECT breed_id FROM breeds WHERE country_of_origin = 'ST');");
+    return { message: "Psy o rasach pochodzących z USA", data: result.rows };
+  } catch (err) {
+    console.error("Błąd podczas pobierania psów o rasach pochodzących z USA:", err);
+    throw new Error("Wystąpił błąd podczas pobierania psów o rasach pochodzących z USA");
+  }
+}
 
-  const date = req.body.date;
-  const volume = Number(req.body.volume);
-
-  const result = await client.query(`
-      update index_company_data set volume = ${volume} 
-      where index_id = (select index_id from indexes where index_name = '${index}') and day = '${date}'
-    `);
-
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/dogs-usa-breeds", async (req, res, next) => {
+  try {
+    const data = await testCase6Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+// -- SELECT Z GRUPOWANIEM I FUNKCJAMI AGREGUJĄCYMI --
 
 // TEST CASE 7
-router.delete("/postgres/company/:index", async (req, res, next) => {
-  const index = req.params.index;
+// Pobieranie liczby psów dla każdej rasy, które mają więcej niż 5 osobników
+async function testCase7Postgres() {
+  try {
+    const result = await client.query("SELECT breed_id, COUNT(*) AS total_dogs FROM dogs GROUP BY breed_id HAVING COUNT(*) > 5;");
+    return { message: "Liczba psów dla każdej rasy, która ma więcej niż 5 osobników", data: result.rows };
+  } catch (err) {
+    console.error("Błąd podczas pobierania liczby psów dla każdej rasy:", err);
+    throw new Error("Wystąpił błąd podczas pobierania liczby psów dla każdej rasy");
+  }
+}
 
-  const date = req.query.date;
-
-  const result = await client.query(`
-      delete from index_company_data 
-      where index_id = (select index_id from indexes where index_name = '${index}') and day = '${date}'
-    `);
-
-  result.rows.forEach((row) => {
-    delete row.garbage;
-  });
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.get("/postgres/dogs-count-by-breed", async (req, res, next) => {
+  try {
+    const data = await testCase7Postgres();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+// -- AKTUALIZACJA --
 
 // TEST CASE 8
-router.post("/postgres/company/:index/insert", async (req, res, next) => {
-  const index = req.params.index;
+// Aktualizacja wagi psa o podanym id
+async function testCase8Postgres(dogId = 1308, newWeight = 20) {
+  try {
+    const result = await client.query("UPDATE dogs SET weight = $1 WHERE dog_id = $2;", [newWeight, dogId]);
+    return { message: "Zaktualizowano wagę psa", dogId };
+  } catch (err) {
+    console.error("Błąd podczas aktualizacji wagi psa:", err);
+    throw new Error("Wystąpił błąd podczas aktualizacji wagi psa");
+  }
+}
 
-  const day = req.body.day;
-  const volume = req.body.volume;
-  const open = req.body.open;
-  const close = req.body.close;
-  const high = req.body.high;
-  const low = req.body.low;
-
-  const result = await client.query(`
-      insert into index_company_data (index_id, day, volume, opening, closing, highest, lowest) 
-      values ((select index_id from indexes where index_name = '${index}'), '${day}', ${volume}, ${open}, ${close}, ${high}, ${low})
-    `);
-
-  res.json({
-    message: index + " index",
-    result: result.rows,
-  });
+router.put("/postgres/dogs/:id/weight/:weight", async (req, res, next) => {
+  const dogId = req.params.id;
+  const newWeight = req.params.weight;
+  try {
+    const data = await testCase8Postgres(dogId, newWeight);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+// TEST CASE 9
+// Aktualizacja daty adopcji dla konkretnego psa i właściciela
+async function testCase9Postgres(ownerId = 13, dogId = 2584, newAdoptionDate = "07/28/2010") {
+  try {
+    const result = await client.query("UPDATE adoptions SET adoption_date = $1 WHERE owner_id = $2 AND dog_id = $3;", [newAdoptionDate, ownerId, dogId]);
+    return { message: "Zaktualizowano datę adopcji dla psa i właściciela", ownerId, dogId };
+  } catch (err) {
+    console.error("Błąd podczas aktualizacji daty adopcji dla psa i właściciela:", err);
+    throw new Error("Wystąpił błąd podczas aktualizacji daty adopcji dla psa i właściciela");
+  }
+}
+
+router.put("/postgres/adoptions/:ownerId/:dogId/adoption-date", async (req, res, next) => {
+  const ownerId = req.params.ownerId;
+  const dogId = req.params.dogId;
+  const newAdoptionDate = req.body.adoption_date;
+  try {
+    const data = await testCase9Postgres(ownerId, dogId, newAdoptionDate);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export { testCase1Postgres, testCase2Postgres, testCase3Postgres, testCase4Postgres, testCase5Postgres, testCase6Postgres, testCase7Postgres, testCase8Postgres, testCase9Postgres };

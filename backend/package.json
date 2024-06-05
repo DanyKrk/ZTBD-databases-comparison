@@ -14,9 +14,14 @@
     "node": "20.12.2"
   },
   "dependencies": {
+    "@canvasjs/charts": "^3.8.6",
+    "apexcharts": "^3.48.0",
+    "axios": "^1.6.8",
+    "chart.js": "^4.4.2",
     "express": "^4.18.2",
+    "jquery": "^3.7.1",
     "mongodb": "^5.1.0",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.9.7",
     "pg": "^8.10.0",
     "redis": "^4.6.13"
   }
