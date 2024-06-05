@@ -56,7 +56,7 @@ async function runTestCases() {
         await executeTestCase('mongo', testCase2Mongo);
         await executeTestCase('mongo', testCase3Mongo);
         await executeTestCase('mongo', testCase4Mongo);
-        // await executeTestCase('mongo', testCase5Mongo);
+        await executeTestCase('mongo', testCase5Mongo);
         await executeTestCase('mongo', testCase6Mongo);
         await executeTestCase('mongo', testCase7Mongo);
         await executeTestCase('mongo', testCase8Mongo);

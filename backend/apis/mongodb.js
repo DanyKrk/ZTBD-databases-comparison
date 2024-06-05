@@ -167,12 +167,11 @@ router.get("/mongodb/adoptions/date/:date", async (req, res, next) => {
 
 // -- SELECTY Z ŁĄCZENIEM TABEL --
 
-// TODO: Fix !!!!!
-
 // TESTCASE 5
 // Pobieranie imion psów i nazw ras
 async function testCase5Mongo() {
   try {
+    let Dog = db.collection("dogs");
     const dogsBreeds = await Dog.aggregate([
       {
         $lookup: {
@@ -188,7 +187,8 @@ async function testCase5Mongo() {
           "breed_name": "$breed_info.breed_name"
         }
       }
-    ]);
+    ]).toArray();
+    // console.log("mongo", dogsBreeds)
     return({ message: "Imiona psów i nazwy ras", data: dogsBreeds });
   } catch (err) {
     console.error("Błąd podczas pobierania imion psów i nazw ras:", err);
@@ -209,10 +209,10 @@ async function testCase6Mongo() {
   try {
     const collection = db.collection("breeds");
     const dogsCollection = db.collection("dogs");
-    const usaBreeds = await collection.find({ country_of_origin: "ST" });
+    const usaBreeds = await collection.find({ country_of_origin: "ST" }).toArray();
     const usaBreedsIds = usaBreeds.map(breed => breed.breed_id);
-    const usaDogs = await dogsCollection.find({ breed_id: { $in: usaBreedsIds } });
-    console.log("Psy o rasach pochodzących z USA", usaDogs)
+    const usaDogs = await dogsCollection.find({ breed_id: { $in: usaBreedsIds } }).toArray();
+    // console.log("testcase6", usaDogs)
     return({ message: "Psy o rasach pochodzących z USA", data: usaDogs });
   } catch (err) {
     console.error("Błąd podczas pobierania psów o rasach pochodzących z USA:", err);
@@ -246,7 +246,8 @@ async function testCase7Mongo() {
           total_dogs: { $gt: 5 }
         }
       }
-    ]);
+    ]).toArray();
+    // console.log("testcase7", dogsCountByBreed)
     return({ message: "Liczba psów dla każdej rasy, która ma więcej niż 5 osobników", data: dogsCountByBreed });
   } catch (err) {
     console.error("Błąd podczas pobierania liczby psów dla każdej rasy:", err);
