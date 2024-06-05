@@ -448,7 +448,7 @@ async function findAdoptionKey(ownerId, dogId) {
 
 async function updateAdoptionDateInRedis(ownerId = 13, dogId = 2584, newAdoptionDate = "07/28/2010") {
   try {
-      const adoptionKey = await findAdoptionKey(ownerId, dogId);
+      let adoptionKey = await findAdoptionKey(ownerId, dogId);
       if(adoptionKey == null){
         adoptionKey = '-1';
       }
