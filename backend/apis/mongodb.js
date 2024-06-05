@@ -105,7 +105,7 @@ router.get("/mongodb/dogs", async (req, res, next) => {
 async function testCase2Mongo() {
   try {
     const collection = db.collection("breeds");
-    const breeds = collection.find().toArray();
+    const breeds = await collection.find().toArray();
     return({ message: "Wszytskie rasy", breeds });
   } catch (err) {
     console.error("Błąd podczas pobierania danych ras:", err);
@@ -212,6 +212,7 @@ async function testCase6Mongo() {
     const usaBreeds = await collection.find({ country_of_origin: "ST" });
     const usaBreedsIds = usaBreeds.map(breed => breed.breed_id);
     const usaDogs = await dogsCollection.find({ breed_id: { $in: usaBreedsIds } });
+    console.log("Psy o rasach pochodzących z USA", usaDogs)
     return({ message: "Psy o rasach pochodzących z USA", data: usaDogs });
   } catch (err) {
     console.error("Błąd podczas pobierania psów o rasach pochodzących z USA:", err);
