@@ -12,7 +12,7 @@ import { testCase1Redis, testCase2Redis, testCase3Redis, testCase4Redis, testCas
 
 const executionTimes = {
     postgres: {},
-    mongodb: {},
+    mongo: {},
     mysql: {},
     redis: {}
 };
@@ -62,15 +62,15 @@ async function runTestCases() {
         await executeTestCase('mongo', testCase8Mongo);
         await executeTestCase('mongo', testCase9Mongo);
 
-        // await executeTestCase('mysql', testCase1MySQL);
-        // await executeTestCase('mysql', testCase2MySQL);
-        // await executeTestCase('mysql', testCase3MySQL);
-        // await executeTestCase('mysql', testCase4MySQL);
-        // await executeTestCase('mysql', testCase5MySQL);
-        // await executeTestCase('mysql', testCase6MySQL);
-        // await executeTestCase('mysql', testCase7MySQL);
-        // await executeTestCase('mysql', testCase8MySQL);
-        // await executeTestCase('mysql', testCase9MySQL);
+        await executeTestCase('mysql', testCase1MySQL);
+        await executeTestCase('mysql', testCase2MySQL);
+        await executeTestCase('mysql', testCase3MySQL);
+        await executeTestCase('mysql', testCase4MySQL);
+        await executeTestCase('mysql', testCase5MySQL);
+        await executeTestCase('mysql', testCase6MySQL);
+        await executeTestCase('mysql', testCase7MySQL);
+        await executeTestCase('mysql', testCase8MySQL);
+        await executeTestCase('mysql', testCase9MySQL);
 
         await executeTestCase('redis', testCase1Redis);
         await executeTestCase('redis', testCase2Redis);
@@ -80,7 +80,7 @@ async function runTestCases() {
         await executeTestCase('redis', testCase6Redis);
         await executeTestCase('redis', testCase7Redis);
         await executeTestCase('redis', testCase8Redis);
-        // await executeTestCase('redis', testCase9Redis);
+        await executeTestCase('redis', testCase9Redis);
 
     }
     // Calculate the average execution time per test case for each database
